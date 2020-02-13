@@ -1,0 +1,28 @@
+# ignore the idea project files
+
+**/*.iml
+**/*.ipr
+**/*.iws
+**/.idea
+
+# ignore the eclipse project files
+
+.project
+.classpath
+.settings/
+
+# ignore test files
+DCSTemplates/logs/
+
+# ignore maven build directories
+
+target
+generated
+dist
+logs
+overlays
+
+# ignore temp/cache directories
+
+.sass-cache
+.tmp
