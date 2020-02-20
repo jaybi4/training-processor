@@ -1,8 +1,8 @@
 package com.jroc.trainingprocessor.util.spel;
 
 import com.jroc.trainingprocessor.fieldpathscanner.FieldMappingObject;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -15,26 +15,23 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 public final class SpELEvaluator {
 
-  private static final Logger LOG = LogManager.getLogger();
+  public interface MethodRegistry {
 
-  private static final Map<String, String> replacements = Replacements.getReplacements();
+    default List<Method> methodsToRegister() {
+      return List.of(this.getClass().getDeclaredMethods());
+    }
+  }
+
+  private static final Logger LOG = LogManager.getLogger();
 
   private SpELEvaluator() {
     throw new UnsupportedOperationException();
   }
 
-  public static EvaluationContext getContext(Object contextObject) {
+  public static EvaluationContext getContext(Object contextObject, MethodRegistry methodRegistry) {
     EvaluationContext context = new StandardEvaluationContext(contextObject);
-    try {
-      context.setVariable("currentDate",
-          SpELEvaluator.class.getDeclaredMethod("currentDate", String.class));
-      context.setVariable("currentDateMinusYears",
-          SpELEvaluator.class.getDeclaredMethod("currentDateMinusYears", int.class, String.class));
-      context
-          .setVariable("replace", SpELEvaluator.class.getDeclaredMethod("replace", String.class));
-    } catch (NoSuchMethodException e) {
-      LOG.error(e.getMessage());
-    }
+    methodRegistry.methodsToRegister()
+        .forEach(method -> context.setVariable(method.getName(), method));
     return context;
   }
 
@@ -51,18 +48,6 @@ public final class SpELEvaluator {
     matcher.appendTail(sb);
     return Objects.requireNonNull(
         new SpelExpressionParser().parseExpression(sb.toString()).getValue(context));
-  }
-
-  public static String currentDate(String dateFormat) {
-    return LocalDate.now().format(DateTimeFormatter.ofPattern(dateFormat));
-  }
-
-  public static String currentDateMinusYears(int years, String dateFormat) {
-    return LocalDate.now().minusYears(years).format(DateTimeFormatter.ofPattern(dateFormat));
-  }
-
-  public static String replace(String stringToReplace) {
-    return replacements.get(stringToReplace);
   }
 
 }
