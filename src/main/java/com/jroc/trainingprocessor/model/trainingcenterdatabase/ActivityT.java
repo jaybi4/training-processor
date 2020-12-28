@@ -8,6 +8,8 @@
 
 package com.jroc.trainingprocessor.model.trainingcenterdatabase;
 
+import com.jroc.trainingprocessor.annotation.FieldExpression;
+import com.jroc.trainingprocessor.annotation.FieldMapping;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -55,8 +57,15 @@ public class ActivityT {
 
   @XmlElement(name = "Id", required = true)
   @XmlSchemaType(name = "dateTime")
+  @FieldMapping(value = "date", expression = "toString()")
   protected XMLGregorianCalendar id;
   @XmlElement(name = "Lap", required = true)
+  @FieldMapping(value = "lapsTime", expression = "![totalTimeSeconds]", isAuxiliary = true)
+  @FieldExpression(value = "time", expression = "#sum(#{lapsTime})")
+  @FieldMapping(value = "lapsDistance", expression = "![distanceMeters]", isAuxiliary = true)
+  @FieldExpression(value = "distance", expression = "#sum(#{lapsDistance})")
+  @FieldMapping(value = "lapsAvgHeartRate", expression = "![averageHeartRateBpm.value]", isAuxiliary = true)
+  @FieldExpression(value = "avgHeartRate", expression = "#avg(#{lapsAvgHeartRate})")
   protected List<ActivityLapT> lap;
   @XmlElement(name = "Notes")
   protected String notes;
@@ -67,6 +76,7 @@ public class ActivityT {
   @XmlElement(name = "Extensions")
   protected ExtensionsT extensions;
   @XmlAttribute(name = "Sport", required = true)
+  @FieldMapping(value = "isRunning", expression = "![value() == T(com.jroc.trainingprocessor.model.trainingcenterdatabase).RUNNING ? true : false]")
   protected SportT sport;
 
   /**
