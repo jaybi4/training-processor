@@ -17,13 +17,15 @@ public static class SubmissionDate {
 }
 ```
 
-In compilation time we traverse all Java files to calculate the corresponding paths for each field. Following with the above example, _SubmissionDate_ is a field of the class _Example_, which in turn is a field of _RootExample_. In this case the path to the field would be:
+In compilation time we traverse all Java files to calculate the corresponding paths for each field (the entry point is _FieldMapGenerator_ invoked from the POM file). Following with the above example, _SubmissionDate_ is a field of the class _Example_, which in turn is a field of _RootExample_. In this case the path to the field would be:
 
 ```
 ApplicationDate = RootExample.Example.SubmissionDate
 ```
 
 Here it comes into play SpEL (Spring Expression Language). We can run this expression (_RootExample.Example.SubmissionDate_) against the _RootExample_ object to obtain the _applicationDate_ value.
+
+_SpELEvaluator_ is the utility class for this. It performs the SpEL context creation as well as parses the expressions inside the mappings (marked as #{}).
 
 This was just quick example, but things can get more complicated with mappings. This is why the model is enhanced with other helper annotations and SpEL capabilities. For example:
 
